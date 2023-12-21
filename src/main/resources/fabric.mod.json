@@ -1,0 +1,48 @@
+{
+	"schemaVersion": 1,
+	"id": "client-integrationtest",
+	"version": "${version}",
+	"name": "client-integrationtest",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/client-integrationtest/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "net.ccbluex.integrationtest.Clientintegrationtest",
+				"adapter": "kotlin"
+			}
+		],
+		"client": [
+			{
+				"value": "net.ccbluex.integrationtest.ClientintegrationtestClient",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"client-integrationtest.mixins.json",
+		{
+			"config": "client-integrationtest.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.3",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*",
+		"fabric-language-kotlin": ">=1.9.21"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

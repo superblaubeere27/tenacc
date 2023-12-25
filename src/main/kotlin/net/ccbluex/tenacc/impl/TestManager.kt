@@ -31,4 +31,10 @@ abstract class TestManager {
     }
 
     fun findTestById(id: TestIdentifier) = this.registeredTests.find { it.identifier == id }
+
+    open fun reset() {
+        this.sequenceManager.cancelAll()
+    }
+
+    abstract fun failTestError(e: Throwable, reportToOtherSide: Boolean)
 }

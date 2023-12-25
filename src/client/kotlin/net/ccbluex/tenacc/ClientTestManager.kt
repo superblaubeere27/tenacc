@@ -15,8 +15,19 @@ object ClientTestManager: TestManager() {
         ClientNetworkManager
     }
 
-    fun reset() {
+    override fun reset() {
+        super.reset()
+
         InputManager.clearInput()
+        println("Client reset")
+    }
+
+    override fun failTestError(e: Throwable, reportToOtherSide: Boolean) {
+        this.reset()
+
+        if (reportToOtherSide) {
+            ClientNetworkManager.sendError(e)
+        }
     }
 
 }

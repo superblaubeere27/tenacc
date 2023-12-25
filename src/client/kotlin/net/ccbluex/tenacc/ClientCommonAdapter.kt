@@ -10,9 +10,11 @@ object ClientCommonAdapter: CITCommonAdapter {
 
     override fun startSequence(fn: suspend CITestSequence.() -> Unit) {
         val seq = ClientTestSequence(ClientTestManager.sequenceManager, ClientNetworkManager) {
-            fn()
-
-            ClientTestManager.reset()
+            try {
+                fn()
+            } finally {
+                ClientTestManager.reset()
+            }
         }
 
         seq.run()

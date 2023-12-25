@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import net.ccbluex.tenacc.Clientintegrationtest
 import net.ccbluex.tenacc.api.common.CIEvent
 import net.ccbluex.tenacc.api.common.CITestSequence
+import net.ccbluex.tenacc.impl.TestManager
 import kotlin.coroutines.suspendCoroutine
 
 typealias SuspendableHandler = suspend CommonTestSequence.() -> Unit
@@ -18,7 +19,7 @@ abstract class CommonTestSequence(
 ) : CITestSequence, ManagedSequence {
     private lateinit var coroutine: Job
 
-    open fun cancel() {
+    override fun cancel() {
         coroutine.cancel()
         continuation = null
 
@@ -26,6 +27,8 @@ abstract class CommonTestSequence(
     }
 
     private var continuation: ConditionalContinuation<*>? = null
+
+    abstract val testManager: TestManager
 
     fun run() {
         coroutine = GlobalScope.launch(Dispatchers.Unconfined) {
@@ -48,7 +51,7 @@ abstract class CommonTestSequence(
         }.onFailure {
             Clientintegrationtest.logger.error("Failed to execute test coroutine", it)
 
-            TODO("Fail tests on errors")
+            testManager.failTestError(it, true)
         }
     }
 

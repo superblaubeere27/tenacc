@@ -18,11 +18,31 @@ class ServerTestManager(
 
     override fun createCommonAdapter(): CITCommonAdapter = ServerCommonAdapter(this)
 
+    override fun reset() {
+        super.reset()
+
+        this.runningTest = null
+        println("Server reset")
+    }
+
+    override fun failTestError(e: Throwable, reportToOtherSide: Boolean) {
+        this.reset()
+
+        println("Test failed with error: ")
+        println(e)
+
+        if (reportToOtherSide) {
+            networkManager.sendError(e)
+        }
+    }
+
     fun startTest(server: MinecraftServer, testableFunction: TestableFunction) {
         if (server.playerManager.playerList.size != 1)
             throw IllegalStateException("Tests can only be run if there is only one player online!")
 
         val player = server.playerManager.playerList.first()
+
+        this.reset()
 
         this.runningTest = ServerRunningTestContext(testableFunction, player)
 

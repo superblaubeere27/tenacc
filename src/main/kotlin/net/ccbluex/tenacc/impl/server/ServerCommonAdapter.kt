@@ -2,6 +2,7 @@ package net.ccbluex.tenacc.impl.server
 
 import net.ccbluex.tenacc.api.common.CITCommonAdapter
 import net.ccbluex.tenacc.api.common.CITestSequence
+import net.ccbluex.tenacc.api.errors.TestTimeoutException
 import net.ccbluex.tenacc.utils.chat
 
 class ServerCommonAdapter(private val serverTestManager: ServerTestManager): CITCommonAdapter {
@@ -10,6 +11,37 @@ class ServerCommonAdapter(private val serverTestManager: ServerTestManager): CIT
     }
 
     override fun startSequence(fn: suspend CITestSequence.() -> Unit) {
-        ServerTestSequence(serverTestManager.sequenceManager, serverTestManager.networkManager, serverTestManager, fn).run()
+        val seq = ServerTestSequence(
+            serverTestManager.sequenceManager,
+            serverTestManager.networkManager,
+            serverTestManager
+        ) {
+            try {
+                fn()
+            } catch (e: Exception) {
+                serverTestManager.failTestError(e, true)
+            } finally {
+                serverTestManager.reset()
+            }
+        }
+
+        seq.run()
+
+        val timeoutTicks = serverTestManager.runningTest!!.test.annotation.timeout
+
+        if (timeoutTicks <= 0)
+            return
+
+        val timeoutSeq = ServerTestSequence(
+            serverTestManager.sequenceManager,
+            serverTestManager.networkManager,
+            serverTestManager
+        ) {
+            waitTicks(timeoutTicks)
+
+            serverTestManager.failTestError(TestTimeoutException(), true)
+        }
+
+        timeoutSeq.run()
     }
 }

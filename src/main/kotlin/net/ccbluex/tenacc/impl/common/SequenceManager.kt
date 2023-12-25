@@ -43,8 +43,15 @@ class SequenceManager {
         return true
     }
 
+    fun cancelAll() {
+        ArrayList(this.registeredSequences).forEach {
+            it.cancel()
+        }
+    }
+
 }
 
 interface ManagedSequence {
     fun onEvent(event: CIEvent)
+    fun cancel()
 }

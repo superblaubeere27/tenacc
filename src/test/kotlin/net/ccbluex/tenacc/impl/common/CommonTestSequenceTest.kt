@@ -3,6 +3,7 @@ package net.ccbluex.tenacc.impl.common
 import net.ccbluex.tenacc.api.client.CITClientAdapter
 import net.ccbluex.tenacc.api.common.CITestSequence
 import net.ccbluex.tenacc.api.server.CITServerAdapter
+import net.ccbluex.tenacc.impl.TestManager
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -323,9 +324,16 @@ class CommonTestSequenceTest {
         override fun sendFencePermit(ids: Int) {
             
         }
+
+        override fun sendError(e: Throwable) {
+            TODO("Not yet implemented")
+        }
     }
     
     class DummyTestSequence(handler: SuspendableHandler) : CommonTestSequence(sequenceManager, DummyNetworkHandler, handler) {
+        override val testManager: TestManager
+            get() = TODO("Not yet implemented")
+
         override fun server(fn: CITServerAdapter.() -> Unit) {
             TODO("Not yet implemented")
         }

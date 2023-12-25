@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "client-integrationtest",
+	"id": "tenacc",
 	"version": "${version}",
-	"name": "client-integrationtest",
+	"name": "tenacc",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
 		"Me!"
@@ -17,21 +17,21 @@
 	"entrypoints": {
 		"main": [
 			{
-				"value": "net.ccbluex.integrationtest.Clientintegrationtest",
+				"value": "net.ccbluex.tenacc.Clientintegrationtest",
 				"adapter": "kotlin"
 			}
 		],
 		"client": [
 			{
-				"value": "net.ccbluex.integrationtest.ClientintegrationtestClient",
+				"value": "net.ccbluex.tenacc.ClientintegrationtestClient",
 				"adapter": "kotlin"
 			}
 		]
 	},
 	"mixins": [
-		"client-integrationtest.mixins.json",
+		"tenacc.mixins.json",
 		{
-			"config": "client-integrationtest.client.mixins.json",
+			"config": "tenacc.client.mixins.json",
 			"environment": "client"
 		}
 	],

@@ -23,7 +23,7 @@ class CommonTestSequenceTest {
 
         DummyTestSequence {
             ran = true
-        }
+        }.run()
 
         assertTrue(ran)
     }
@@ -43,6 +43,8 @@ class CommonTestSequenceTest {
 
             nTimesRan += 1
         }
+
+        seq.run()
 
         assertEquals(1, nTimesRan)
         seq.onEvent(TickEvent())
@@ -71,6 +73,8 @@ class CommonTestSequenceTest {
             nTimesRan += 1
         }
 
+        seq.run()
+
         assertEquals(2, nTimesRan)
         seq.onEvent(TickEvent())
 
@@ -96,6 +100,8 @@ class CommonTestSequenceTest {
             nTimesRan += 1
         }
 
+        seq.run()
+
         for (i in 0 until 5) {
             assertEquals(1, nTimesRan)
 
@@ -118,6 +124,8 @@ class CommonTestSequenceTest {
 
             nTimesRan += 1
         }
+
+        seq.run()
 
         for (i in 0 until 100) {
             assertEquals(1, nTimesRan)
@@ -154,6 +162,8 @@ class CommonTestSequenceTest {
             nTimesRan += 1
         }
 
+        seq.run()
+
         assertEquals(3, nTimesRan)
     }
 
@@ -180,6 +190,8 @@ class CommonTestSequenceTest {
 
             nTimesRan += 1
         }
+
+        seq.run()
 
         assertEquals(2, nTimesRan)
 
@@ -217,6 +229,8 @@ class CommonTestSequenceTest {
 
             nTimesRan += 1
         }
+
+        seq.run()
 
         val permitDelay = listOf(
             Pair(100, listOf(5, 4)),
@@ -270,6 +284,8 @@ class CommonTestSequenceTest {
 
             nTimesRan += 1
         }
+
+        seq.run()
 
         assertEquals(false, firstCancellationReason)
         assertEquals(2, nTimesRan)

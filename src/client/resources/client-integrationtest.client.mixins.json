@@ -1,9 +1,10 @@
 {
 	"required": true,
-	"package": "net.ccbluex.integrationtest.mixin.client",
+	"package": "net.ccbluex.tenacc.client.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
-		"ExampleClientMixin"
+		"MixinMinecraftClient",
+		"MixinKeyBinding"
 	],
 	"injectors": {
 		"defaultRequire": 1

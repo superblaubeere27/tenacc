@@ -1,6 +1,6 @@
 package net.ccbluex.tenacc.impl.common
 
-import net.ccbluex.tenacc.api.common.CIEvent
+import net.ccbluex.tenacc.api.common.TACCEvent
 
-class FencePermitEvent(val permissions: List<Int>): CIEvent() {
+class FencePermitEvent(val permissions: List<Int>): TACCEvent() {
 }

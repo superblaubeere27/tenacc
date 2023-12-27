@@ -1,85 +1,165 @@
 package net.ccbluex.tenacc.test
 
-import net.ccbluex.tenacc.api.CITest
-import net.ccbluex.tenacc.api.CITestClass
+import net.ccbluex.tenacc.api.TACCTest
+import net.ccbluex.tenacc.api.TACCTestClass
 import net.ccbluex.tenacc.api.client.InputKey
-import net.ccbluex.tenacc.api.common.CITCommonAdapter
-import net.minecraft.util.math.BlockPos
+import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
+import net.ccbluex.tenacc.api.common.TACCTestSequence
+import net.ccbluex.tenacc.api.common.TACCTestVariant
+import net.ccbluex.tenacc.features.templates.MirrorType
+import net.ccbluex.tenacc.features.templates.RotationType
+import net.ccbluex.tenacc.utils.Rotation
+import net.ccbluex.tenacc.utils.isStandingOnMarkerBlock
+import net.ccbluex.tenacc.utils.lookDirection
+import net.minecraft.block.Block
+import net.minecraft.block.Blocks
+import org.joml.Vector3f
 
 
-@CITestClass("TestNo1")
+@TACCTestClass("TestNo1")
 class TestTestTest {
 
-    @CITest(name = "sampleTest", scenary = "test.structure")
-    fun runTest(adapter: CITCommonAdapter) {
-        adapter.startSequence {
-            server {
-                player.teleport(player.serverWorld, 3.313046, 56.000000, -2.700000, 0.0F, 20F)
+    @TACCTest(
+        name = "sampleTest",
+        scenary = "sampletest.nbt",
+        timeout = 500,
+        rotations = [RotationType.NONE, RotationType.MINUS_90_DEGREES, RotationType.PLUS_90_DEGREES, RotationType.PLUS_180_DEGREES],
+        mirrors = [MirrorType.MIRROR_NONE, MirrorType.MIRROR_Z, MirrorType.MIRROR_X]
+    )
+    fun runTest(adapter: TACCSequenceAdapter) {
+        var block: Block? = null
 
-                permitFencePassage(1)
+        val variants = arrayOf(
+            TACCTestVariant.DEFAULT,
+//            TACCTestVariant.of("with obsidian") {
+//                block = Blocks.OBSIDIAN
+//            }
+        )
+
+        adapter.startSequence(variants) {
+            val startPositions = server { getMarkerPositions("start") }
+
+            loopByServer(startPositions) { startPositionBox ->
+                server {
+                    resetScenery()
+
+                    block?.let {
+                        player.serverWorld.setBlockState(getMarkerPos("run_left"), it.defaultState)
+                    }
+
+                    val startPosition = openBox(startPositionBox)
+
+                    log("Testing sign $startPosition")
+
+                    player.teleport(
+                        player.serverWorld,
+                        startPosition.x.toDouble() + 0.5,
+                        startPosition.y.toDouble(),
+                        startPosition.z.toDouble() + 0.5,
+                        0.0F,
+                        20F
+                    )
+                }
+
+                waitTicks(2)
+                sync()
+
+                runLoop()
             }
-
-            waitForFencePassage(1)
-
-            client {
-                sendInputs(InputKey.KEY_FORWARDS)
-            }
-
-            serverSequence { server ->
-                waitUntil(100) { server.player.isOnGround && server.player.blockPos == BlockPos(3, 55, -1) }
-
-                server.log("Player fell into pit")
-
-                permitFencePassage(1)
-            }
-
-            waitForFencePassage(1)
-
-            client {
-                sendInputs(InputKey.KEY_FORWARDS)
-                sendInputs(InputKey.KEY_JUMP, nTicks = 3)
-            }
-
-            clientSequence { client ->
-                waitUntil(100) { client.player.blockPos == BlockPos(3, 56, 1) && client.player.velocity.z < 0.01 }
-
-                client.log("ran into wall")
-
-                client.clearInputs()
-
-                client.sendInputs(InputKey.KEY_BACKWARDS, InputKey.KEY_LEFT)
-
-                waitUntil(100) { client.player.blockPos == BlockPos(6, 56, 1) && client.player.velocity.x < 0.01 }
-
-                client.log("ran into right wall")
-
-                client.player.yaw = 10.0F
-                client.player.pitch = 40.0F
-
-                client.clearInputs()
-                client.sendInputs(InputKey.KEY_USE, nTicks = 1)
-
-                waitTicks(5)
-
-                client.log("opened gate")
-
-                client.player.yaw = 0.0F
-                client.player.pitch = 20.0F
-
-                client.clearInputs()
-                client.sendInputs(InputKey.KEY_FORWARDS)
-            }
-
-            serverSequence { server ->
-                waitUntil(100) { server.player.isOnGround && server.player.blockPos == BlockPos(6, 55, 4) }
-
-                permitFencePassage(1)
-            }
-
-            waitForFencePassage(1)
 
             adapter.logServer("Test passed.")
         }
+    }
+
+    private suspend fun TACCTestSequence.runLoop() {
+        client {
+            player.lookDirection(
+                Rotation.fromDirection(
+                Vector3f(0.0F, 0.0F, 1.0F),
+                templateInfo.transformation
+            ))
+
+            clearInputs()
+            sendInputs(InputKey.KEY_BACKWARDS, nTicks = 1)
+            sendInputs(InputKey.KEY_FORWARDS)
+        }
+
+        serverSequence { server ->
+            waitUntilOrFail(25, "Failed to reach pit in time") {
+                server.player.isStandingOnMarkerBlock(server, "pit")
+            }
+
+            server.log("Player fell into pit")
+
+            permitFencePassage(1)
+        }
+
+        waitForFencePassage(1)
+
+        client {
+            println("PERM!")
+
+            sendInputs(InputKey.KEY_FORWARDS)
+            sendInputs(InputKey.KEY_JUMP, nTicks = 10)
+        }
+
+        clientSequence { client ->
+            waitUntilOrFail(40, "where tf is the fucking run_left marker?") {
+                client.player.isStandingOnMarkerBlock(
+                    client,
+                    "run_left"
+                ) && client.player.velocity.horizontalLength() < 0.01
+            }
+
+            client.log("ran into wall")
+
+            client.player.lookDirection(
+                Rotation.fromDirection(
+                    Vector3f(1.0F, 0.0F, 0.0F),
+                    client.templateInfo.transformation
+                ))
+
+            waitUntil {
+                client.player.isStandingOnMarkerBlock(
+                    client,
+                    "run_forward"
+                ) && client.player.velocity.horizontalLength() < 0.01
+            }
+
+            client.log("ran into right wall")
+
+            client.player.lookDirection(
+                Rotation.fromDirection(
+                    Vector3f(0.0F, 0.0F, 1.0F),
+                    client.templateInfo.transformation
+                ).pitch(40.0F))
+
+            client.clearInputs()
+            client.sendInputs(InputKey.KEY_USE, nTicks = 1)
+
+            waitTicks(5)
+
+            client.log("opened gate")
+
+            client.player.lookDirection(
+                Rotation.fromDirection(
+                    Vector3f(0.0F, 0.0F, 1.0F),
+                    client.templateInfo.transformation
+                ))
+
+            client.clearInputs()
+            client.sendInputs(InputKey.KEY_FORWARDS)
+        }
+
+        serverSequence { server ->
+            waitUntilOrFail(100, "Failed to reach pit in time") {
+                server.player.isStandingOnMarkerBlock(server, "target")
+            }
+
+            permitFencePassage(1)
+        }
+
+        waitForFencePassage(1)
     }
 
 }

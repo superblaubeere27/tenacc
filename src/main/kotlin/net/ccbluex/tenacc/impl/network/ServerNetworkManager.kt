@@ -30,6 +30,12 @@ class ServerNetworkManager(
     }
 
     fun sendTestStart(testContext: ServerRunningTestContext) {
-        StartTestServerPacket.send(testContext.player, testContext.test.identifier)
+        StartTestServerPacket.send(testContext.player, testContext.test.identifier, testContext.templateInfo)
+    }
+
+    fun sendTestEnd() {
+        val testContext = testManager.runningTest!!
+
+        ResetTestServerPacket.send(testContext.player, 0, "Test finished.")
     }
 }

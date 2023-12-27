@@ -1,12 +1,16 @@
 package net.ccbluex.tenacc.impl
 
-import net.ccbluex.tenacc.api.CITest
-import net.ccbluex.tenacc.api.common.CITCommonAdapter
+import net.ccbluex.tenacc.api.TACCTest
+import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
 
 class TestableFunction(
     val identifier: TestIdentifier,
-    val annotation: CITest,
-    val testFunction: (CITCommonAdapter) -> Unit
+    val annotation: TACCTest,
+    val testFunction: (TACCSequenceAdapter) -> Unit
 )
 
-data class TestIdentifier(val className: String, val testName: String)
+data class TestIdentifier(val className: String, val testName: String) {
+    override fun toString(): String {
+        return "$className::$testName"
+    }
+}

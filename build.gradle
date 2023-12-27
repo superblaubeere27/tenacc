@@ -45,6 +45,7 @@ dependencies {
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+	testImplementation 'org.joml:joml:1.10.5'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
 }
 
@@ -90,6 +91,10 @@ test {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
+			groupId = 'net.ccbluex'
+			artifactId = 'tenacc'
+			version = '0.1.0'
+
 			from components.java
 		}
 	}
@@ -99,6 +104,8 @@ publishing {
 		// Add repositories to publish to here.
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		// retrieving dependencies.apply plugin: 'maven'
+
+		mavenLocal()
 	}
 }

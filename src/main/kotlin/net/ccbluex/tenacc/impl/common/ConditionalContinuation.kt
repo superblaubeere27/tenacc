@@ -1,10 +1,10 @@
 package net.ccbluex.tenacc.impl.common
 
-import net.ccbluex.tenacc.api.common.CIEvent
+import net.ccbluex.tenacc.api.common.TACCEvent
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
-typealias EventClass = Class<out CIEvent>
+typealias EventClass = Class<out TACCEvent>
 
 /**
  * @param R the return value a continuation will give upon continuation
@@ -96,6 +96,26 @@ sealed class ConditionalContinuation<R>(
 
             if (passagesLeft.isEmpty()) {
                 resume(Unit)
+            }
+        }
+    }
+
+    /**
+     * Waits until any fence ids is passed. Returns the id of the passed fence.
+     */
+    class WaitForAnyFencePassage(
+        filteredEvent: EventClass,
+        private val sequenceManager: SequenceManager,
+        private val ids: IntArray,
+    ) : ConditionalContinuation<Int>(filteredEvent) {
+
+        override fun tick() {
+            for (id in this.ids) {
+                if (this.sequenceManager.tryPassFence(id)) {
+                    resume(id)
+
+                    return
+                }
             }
         }
     }

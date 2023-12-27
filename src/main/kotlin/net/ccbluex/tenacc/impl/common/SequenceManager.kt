@@ -1,6 +1,6 @@
 package net.ccbluex.tenacc.impl.common
 
-import net.ccbluex.tenacc.api.common.CIEvent
+import net.ccbluex.tenacc.api.common.TACCEvent
 import java.util.BitSet
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -16,7 +16,7 @@ class SequenceManager {
         this.registeredSequences.remove(sequence)
     }
 
-    fun onEvent(event: CIEvent) {
+    fun onEvent(event: TACCEvent) {
         if (event is FencePermitEvent) {
             synchronized(this.fencePermissions) {
                 event.permissions.forEach { this.fencePermissions.set(it) }
@@ -43,6 +43,12 @@ class SequenceManager {
         return true
     }
 
+    fun reset() {
+        this.cancelAll()
+
+        this.fencePermissions.clear()
+    }
+
     fun cancelAll() {
         ArrayList(this.registeredSequences).forEach {
             it.cancel()
@@ -52,6 +58,6 @@ class SequenceManager {
 }
 
 interface ManagedSequence {
-    fun onEvent(event: CIEvent)
+    fun onEvent(event: TACCEvent)
     fun cancel()
 }

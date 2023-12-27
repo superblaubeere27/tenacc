@@ -1,12 +1,9 @@
 package net.ccbluex.tenacc.impl.common
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ccbluex.tenacc.Clientintegrationtest
-import net.ccbluex.tenacc.api.common.CIEvent
-import net.ccbluex.tenacc.api.common.CITestSequence
+import net.ccbluex.tenacc.api.common.TACCEvent
+import net.ccbluex.tenacc.api.common.TACCTestSequence
 import net.ccbluex.tenacc.impl.TestManager
 import kotlin.coroutines.suspendCoroutine
 
@@ -16,7 +13,7 @@ abstract class CommonTestSequence(
     private val sequenceManager: SequenceManager,
     private val networkHandler: NetworkHandler,
     private val handler: SuspendableHandler
-) : CITestSequence, ManagedSequence {
+) : TACCTestSequence, ManagedSequence {
     private lateinit var coroutine: Job
 
     override fun cancel() {
@@ -31,7 +28,7 @@ abstract class CommonTestSequence(
     abstract val testManager: TestManager
 
     fun run() {
-        coroutine = GlobalScope.launch(Dispatchers.Unconfined) {
+        coroutine = GlobalScope.launch(Dispatchers.Unconfined, start= CoroutineStart.LAZY) {
             val sequence = this@CommonTestSequence
 
             sequenceManager.registerSequence(sequence)
@@ -43,6 +40,8 @@ abstract class CommonTestSequence(
                 sequenceManager.unregisterSequence(sequence)
             }
         }
+
+        coroutine.start()
     }
 
     internal open suspend fun runCoroutine() {
@@ -55,11 +54,15 @@ abstract class CommonTestSequence(
         }
     }
 
-    override fun onEvent(event: CIEvent) {
-        val currContinuation = this.continuation ?: return
+    override fun onEvent(event: TACCEvent) {
+        runCatching {
+            val currContinuation = this.continuation ?: return
 
-        if (currContinuation.filteredEvent == event.javaClass) {
-            currContinuation.tick()
+            if (currContinuation.filteredEvent == event.javaClass) {
+                currContinuation.tick()
+            }
+        }.onFailure {
+            testManager.failTestError(it, true)
         }
     }
 
@@ -105,7 +108,7 @@ abstract class CommonTestSequence(
      * Syncs the coroutine to the game tick.
      * It does not matter if we wait 0 or 1 ticks, it will always sync to the next tick.
      */
-    internal suspend fun sync() {
+    internal suspend fun waitUntilNextTick() {
         this.wait(ConditionalContinuation.WaitTickContinuation(TickEvent::class.java, 0))
     }
 
@@ -124,6 +127,22 @@ abstract class CommonTestSequence(
         )
 
         this.wait(conditionalContinuation)
+    }
+
+    override suspend fun waitForEitherPassage(vararg fenceIds: Int): Int {
+        for (fenceId in fenceIds) {
+            if (this.sequenceManager.tryPassFence(fenceId)) {
+                return fenceId
+            }
+        }
+
+        val conditionalContinuation = ConditionalContinuation.WaitForAnyFencePassage(
+            TickEvent::class.java,
+            this.sequenceManager,
+            fenceIds
+        )
+
+        return this.wait(conditionalContinuation)
     }
 
     override fun permitFencePassage(fenceId: Int) {

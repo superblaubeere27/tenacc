@@ -1,8 +1,9 @@
 package net.ccbluex.tenacc.impl.common
 
-import net.ccbluex.tenacc.api.client.CITClientAdapter
-import net.ccbluex.tenacc.api.common.CITestSequence
-import net.ccbluex.tenacc.api.server.CITServerAdapter
+import net.ccbluex.tenacc.api.client.TACCClientTestAdapter
+import net.ccbluex.tenacc.api.common.TACCBox
+import net.ccbluex.tenacc.api.common.TACCTestSequence
+import net.ccbluex.tenacc.api.server.TACCServerTestAdapter
 import net.ccbluex.tenacc.impl.TestManager
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -36,11 +37,11 @@ class CommonTestSequenceTest {
         val seq = DummyTestSequence {
             nTimesRan += 1
 
-            sync()
+            waitUntilNextTick()
 
             nTimesRan += 1
 
-            sync()
+            waitUntilNextTick()
 
             nTimesRan += 1
         }
@@ -167,6 +168,27 @@ class CommonTestSequenceTest {
 
         assertEquals(3, nTimesRan)
     }
+    @Test
+    fun testFenceSelfAnyPermit() {
+        var nTimesRan = 0
+
+        var first: Int? = null
+
+        val seq = DummyTestSequence {
+            nTimesRan += 1
+
+            permitFencePassage(0)
+
+            first = waitForEitherPassage(1, 0)
+
+            nTimesRan += 1
+        }
+
+        seq.run()
+
+        assertEquals(2, nTimesRan)
+        assertEquals(0, first)
+    }
 
     @Test
     fun testFencePassage() {
@@ -212,6 +234,58 @@ class CommonTestSequenceTest {
         assertEquals(3, nTimesRan)
         sequenceManager.onEvent(FencePermitEvent(listOf(1)))
         seq.onEvent(TickEvent())
+        assertEquals(4, nTimesRan)
+    }
+
+    @Test
+    fun testFenceAnyPassage() {
+        var nTimesRan = 0
+
+        var first: Int? = null
+
+        val seq = DummyTestSequence {
+            nTimesRan += 1
+
+            waitForEitherPassage(0)
+
+            nTimesRan += 1
+
+            first = waitForEitherPassage(0, 1)
+
+            nTimesRan += 1
+
+            first = waitForEitherPassage(0, 1)
+
+            nTimesRan += 1
+        }
+
+        seq.run()
+
+        assertEquals(1, nTimesRan)
+
+        sequenceManager.onEvent(FencePermitEvent(listOf(0)))
+
+        assertEquals(1, nTimesRan)
+
+        seq.onEvent(TickEvent())
+
+        sequenceManager.onEvent(FencePermitEvent(listOf(0)))
+
+        assertEquals(2, nTimesRan)
+
+        seq.onEvent(TickEvent())
+
+        assertEquals(3, nTimesRan)
+        assertEquals(0, first)
+
+        assertEquals(3, nTimesRan)
+        seq.onEvent(TickEvent())
+        assertEquals(3, nTimesRan)
+        seq.onEvent(TickEvent())
+        assertEquals(3, nTimesRan)
+        sequenceManager.onEvent(FencePermitEvent(listOf(1)))
+        seq.onEvent(TickEvent())
+        assertEquals(1, first)
         assertEquals(4, nTimesRan)
     }
 
@@ -334,19 +408,33 @@ class CommonTestSequenceTest {
         override val testManager: TestManager
             get() = TODO("Not yet implemented")
 
-        override fun server(fn: CITServerAdapter.() -> Unit) {
+        override suspend fun <T, L : Iterable<T>> loopByServer(
+            data: TACCBox.ServerBox<L>,
+            fn: suspend TACCTestSequence.(TACCBox.ServerBox<T>) -> Unit
+        ) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun serverSequence(fn: suspend CITestSequence.(CITServerAdapter) -> Unit) {
+        override suspend fun <T, L : Iterable<T>> loopByClient(
+            data: TACCBox.ClientBox<L>,
+            fn: suspend TACCTestSequence.(TACCBox.ClientBox<T>) -> Unit
+        ) {
             TODO("Not yet implemented")
         }
 
-        override fun client(fn: CITClientAdapter.() -> Unit) {
+        override fun <T> server(fn: TACCServerTestAdapter.() -> T): TACCBox.ServerBox<T> {
             TODO("Not yet implemented")
         }
 
-        override suspend fun clientSequence(fn: suspend CITestSequence.(CITClientAdapter) -> Unit) {
+        override suspend fun <T> serverSequence(fn: suspend TACCTestSequence.(TACCServerTestAdapter) -> T): TACCBox.ServerBox<T> {
+            TODO("Not yet implemented")
+        }
+
+        override fun <T> client(fn: TACCClientTestAdapter.() -> T): TACCBox.ClientBox<T> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun <T> clientSequence(fn: suspend TACCTestSequence.(TACCClientTestAdapter) -> T): TACCBox.ClientBox<T> {
             TODO("Not yet implemented")
         }
 

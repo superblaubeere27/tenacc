@@ -1,27 +1,45 @@
 package net.ccbluex.tenacc.impl
 
-import net.ccbluex.tenacc.api.common.CITCommonAdapter
+import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
+import net.ccbluex.tenacc.api.runner.TACCTestRegistry
+import net.ccbluex.tenacc.api.runner.TACCTestProvider
 import net.ccbluex.tenacc.impl.common.SequenceManager
-import net.ccbluex.tenacc.test.TestTestTest
 import kotlin.reflect.KClass
 
-abstract class TestManager {
+abstract class TestManager: TACCTestRegistry {
     val sequenceManager = SequenceManager()
     abstract val isServer: Boolean
     private val registeredTests = ArrayList<TestableFunction>()
 
+    val testProvider: TACCTestProvider
+
     init {
-        registerTestClass(TestTestTest::class)
+        try {
+            val clazz = Class.forName(System.getenv("TENACC_TEST_PROVIDER"))
+
+            this.testProvider = clazz.getDeclaredConstructor().newInstance() as TACCTestProvider
+
+        } catch (e: Throwable) {
+            throw IllegalStateException("Failed to open TACTestProvider in TENACC_TEST_PROVIDER env variable", e)
+        }
+
+        this.testProvider.registerTests(this)
     }
 
-    abstract fun createCommonAdapter(): CITCommonAdapter
+    abstract fun createCommonAdapter(): TACCSequenceAdapter
 
     fun runTest(testableFunction: TestableFunction) {
-        testableFunction.testFunction(createCommonAdapter())
+        runCatching {
+            testableFunction.testFunction(createCommonAdapter())
+        }.onFailure {
+            val ex = IllegalStateException("Exception in test launching", it)
+
+            failTestError(ex, true)
+        }
     }
 
-    fun registerTestClass(testClass: KClass<*>) {
-        this.registeredTests.addAll(TestParser.parseClass(testClass))
+    override fun registerTestClass(clazz: KClass<*>) {
+        this.registeredTests.addAll(TestParser.parseClass(clazz))
     }
 
     fun runTestByIdentifier(id: TestIdentifier) {
@@ -33,7 +51,7 @@ abstract class TestManager {
     fun findTestById(id: TestIdentifier) = this.registeredTests.find { it.identifier == id }
 
     open fun reset() {
-        this.sequenceManager.cancelAll()
+        this.sequenceManager.reset()
     }
 
     abstract fun failTestError(e: Throwable, reportToOtherSide: Boolean)

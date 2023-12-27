@@ -1,5 +1,8 @@
 package net.ccbluex.tenacc.api
 
+import net.ccbluex.tenacc.features.templates.MirrorType
+import net.ccbluex.tenacc.features.templates.RotationType
+
 /**
  * Used on functions to mark them as a client integration test function.
  *
@@ -10,9 +13,11 @@ package net.ccbluex.tenacc.api
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class CITest(
+annotation class TACCTest(
     val name: String,
     val scenary: String,
     val timeout: Int = 100,
     val maxLatency: Int = -1,
+    val mirrors: Array<MirrorType> = [MirrorType.MIRROR_NONE],
+    val rotations: Array<RotationType> = [RotationType.NONE],
 )

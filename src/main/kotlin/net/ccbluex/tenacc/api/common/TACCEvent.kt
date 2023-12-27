@@ -1,4 +1,4 @@
 package net.ccbluex.tenacc.api.common
 
-abstract class CIEvent {
+abstract class TACCEvent {
 }

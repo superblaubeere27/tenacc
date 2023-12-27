@@ -1,5 +1,8 @@
 package net.ccbluex.tenacc.mixin;
 
+import net.ccbluex.tenacc.api.runner.TestScheduleRequest;
+import net.ccbluex.tenacc.features.templates.MirrorType;
+import net.ccbluex.tenacc.features.templates.RotationType;
 import net.ccbluex.tenacc.impl.TestIdentifier;
 import net.ccbluex.tenacc.impl.server.ClientIntegrationTestServerExtensionsKt;
 import net.ccbluex.tenacc.utils.ChatKt;
@@ -14,16 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler {
-
-
     @Shadow public ServerPlayerEntity player;
 
     @Inject(at = @At("HEAD"), method = "onChatMessage", cancellable = true)
     public void onTestMessage(ChatMessageC2SPacket message, CallbackInfo ci) {
         var split = message.chatMessage().split(" ");
 
-        if (split.length == 3 && split[0].equals(".runtest")) {
+        if (split.length >= 3 && split[0].equals("#runtest")) {
             ci.cancel();
+
+            var mirror = split.length >= 4 ? new MirrorType[] {MirrorType.values()[Integer.parseInt(split[3])]} : null;
+            var rotationType = split.length >= 5 ? new RotationType[] {RotationType.values()[Integer.parseInt(split[4])]} : null;
 
             var id = new TestIdentifier(split[1], split[2]);
             var testManager = ClientIntegrationTestServerExtensionsKt.getTestManager(this.player.server);
@@ -38,7 +42,7 @@ public class MixinServerPlayNetworkHandler {
 
             ChatKt.chat(this.player, "Running test...");
 
-            testManager.startTest(player.server, test);
+            testManager.enqueueTests(new TestScheduleRequest(id, rotationType, mirror));
         }
     }
 }

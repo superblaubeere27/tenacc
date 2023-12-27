@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.text.Text
 
 private fun String.asText() = Text.literal(this)
+fun Text.outputString(): String = "${string}${siblings.joinToString(separator = "") { it.outputString() }}"
 
 private val clientPrefix = "§f§lte§c§onacc §8▸ §7".asText()
 

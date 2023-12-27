@@ -23,7 +23,11 @@ public class MixinMinecraftServer implements IMixinMinecraftServer {
 
 	@Inject(at = @At("HEAD"), method = "tick")
 	private void tick(CallbackInfo info) {
-		this.getTestManager().getSequenceManager().onEvent(new TickEvent());
+		ServerTestManager mgr = this.getTestManager();
+
+		mgr.getSequenceManager().onEvent(new TickEvent());
+
+		mgr.tick((MinecraftServer) (Object) this);
 	}
 
 	@Override

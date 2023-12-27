@@ -21,6 +21,8 @@ object TestParser {
 
             val fn = TestableFunction(
                 TestIdentifier(testClassAnnotation.name, annotation.name),
+                clazz.qualifiedName!!,
+                function.name,
                 annotation
             ) {
                 val instance = clazz.createInstance()

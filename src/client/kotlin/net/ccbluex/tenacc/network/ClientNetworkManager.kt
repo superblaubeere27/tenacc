@@ -1,7 +1,9 @@
 package net.ccbluex.tenacc.network
 
+import net.ccbluex.tenacc.ClientTestManager
 import net.ccbluex.tenacc.impl.common.NetworkHandler
 import net.ccbluex.tenacc.impl.network.packets.*
+import net.ccbluex.tenacc.utils.TestErrorFormatter
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 
 object ClientNetworkManager: NetworkHandler {
@@ -16,6 +18,10 @@ object ClientNetworkManager: NetworkHandler {
     }
 
     override fun sendError(exception: Throwable) {
-        ResetTestClientPacket.send(1, exception.toString())
+        val testFn = ClientTestManager.currentTestContext
+
+        testFn!!
+
+        ResetTestClientPacket.send(1, TestErrorFormatter.formatError(exception, ClientTestManager.findTestById(testFn.testIdentifier)!!))
     }
 }

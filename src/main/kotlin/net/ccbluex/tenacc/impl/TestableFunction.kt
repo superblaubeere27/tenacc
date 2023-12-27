@@ -5,6 +5,8 @@ import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
 
 class TestableFunction(
     val identifier: TestIdentifier,
+    val className: String,
+    val functionName: String,
     val annotation: TACCTest,
     val testFunction: (TACCSequenceAdapter) -> Unit
 )

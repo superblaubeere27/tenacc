@@ -1,6 +1,7 @@
 package net.ccbluex.tenacc.test
 
 import net.ccbluex.tenacc.api.runner.*
+import net.ccbluex.tenacc.utils.TestErrorFormatter
 import net.ccbluex.tenacc.utils.chat
 import net.minecraft.server.network.ServerPlayerEntity
 
@@ -17,7 +18,7 @@ internal class TestProvider: TACCTestProvider {
     }
 
     override fun onTestFail(player: ServerPlayerEntity, schedulerInfo: ScheduledTest, error: Throwable) {
-        player.chat("§cTest §l'${schedulerInfo.fn.identifier}' (${schedulerInfo.mirrorType}/${schedulerInfo.rotationType})§r§c failed: $error")
+        player.chat("§cTest §l'${schedulerInfo.fn.identifier}' (${schedulerInfo.mirrorType}/${schedulerInfo.rotationType})§r§c failed: ${TestErrorFormatter.formatError(error, schedulerInfo.fn)}")
     }
 
     override fun onTestPass(player: ServerPlayerEntity, schedulerInfo: ScheduledTest) {

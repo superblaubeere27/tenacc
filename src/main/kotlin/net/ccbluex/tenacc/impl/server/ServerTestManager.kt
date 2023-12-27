@@ -42,7 +42,7 @@ class ServerTestManager(
         if (this.runningTest != null || this.testQueue.isEmpty())
             return
 
-        val test = this.testQueue.removeFirst()
+        val test = this.testQueue.removeAt(0)
 
         startTest(server, test.fn, test.mirrorType, test.rotationType)
     }
@@ -58,8 +58,6 @@ class ServerTestManager(
         testProvider.onTestFail(runningTest1!!.player, ScheduledTest(runningTest1.test, runningTest1.templateInfo.transformation.mirrorType, runningTest1.templateInfo.transformation.rotationType), e)
 
         checkForQueueEnd()
-
-        runningTest1!!.player.chat("Test failed: $e")
 
         try {
             if (reportToOtherSide) {

@@ -8,4 +8,5 @@ enum class InputKey {
     KEY_ATTACK,
     KEY_USE,
     KEY_JUMP,
+    KEY_SNEAK,
 }

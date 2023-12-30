@@ -6,6 +6,7 @@ import net.ccbluex.tenacc.impl.TestIdentifier
 import net.ccbluex.tenacc.impl.TestManager
 import net.ccbluex.tenacc.input.InputManager
 import net.ccbluex.tenacc.network.ClientNetworkManager
+import net.minecraft.client.MinecraftClient
 
 object ClientTestManager: TestManager() {
     override val isServer: Boolean
@@ -13,10 +14,24 @@ object ClientTestManager: TestManager() {
 
     var currentTestContext: ClientTestContext? = null
 
+    var queuedTestContext: ClientTestContext? = null
+
     override fun createCommonAdapter(): TACCSequenceAdapter = ClientCommonAdapter
 
     fun init() {
         ClientNetworkManager
+    }
+
+    fun tick() {
+        if (MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().world != null) {
+            val queuedCtx = queuedTestContext
+
+            if (queuedCtx != null) {
+                this.queuedTestContext = null
+
+                startTest(queuedCtx.testIdentifier, queuedCtx.templateInfo)
+            }
+        }
     }
 
     override fun reset() {
@@ -24,23 +39,28 @@ object ClientTestManager: TestManager() {
 
         InputManager.clearInput()
 
+        queuedTestContext = null
         currentTestContext = null
 
         println("Client reset")
     }
 
     override fun failTestError(e: Throwable, reportToOtherSide: Boolean) {
-        this.reset()
-
         if (reportToOtherSide) {
-            ClientNetworkManager.sendError(e)
+             ClientNetworkManager.sendError(e)
         }
+
+        this.reset()
     }
 
     fun startTest(testIdentifier: TestIdentifier, templateInfo: TemplateInfo) {
         currentTestContext = ClientTestContext(testIdentifier, templateInfo)
 
         runTestByIdentifier(testIdentifier)
+    }
+
+    fun startTestWhenAvailable(testIdentifier: TestIdentifier, templateInfo: TemplateInfo) {
+        queuedTestContext = ClientTestContext(testIdentifier, templateInfo)
     }
 
 }

@@ -29,6 +29,10 @@ class ServerTestManager(
     override val isServer: Boolean
         get() = true
 
+    init {
+        testProvider.init(this)
+    }
+
     override fun createCommonAdapter(): TACCSequenceAdapter = ServerCommonAdapter(this)
 
     override fun reset() {
@@ -42,9 +46,11 @@ class ServerTestManager(
         if (this.runningTest != null || this.testQueue.isEmpty())
             return
 
-        val test = this.testQueue.removeAt(0)
+        if (server.playerManager.playerList.size == 1) {
+            val test = this.testQueue.removeAt(0)
 
-        startTest(server, test.fn, test.mirrorType, test.rotationType)
+            startTest(server, test.fn, test.mirrorType, test.rotationType)
+        }
     }
 
     override fun failTestError(e: Throwable, reportToOtherSide: Boolean) {

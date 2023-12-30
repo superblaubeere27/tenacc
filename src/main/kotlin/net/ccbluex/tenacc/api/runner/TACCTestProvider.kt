@@ -4,6 +4,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 
 interface TACCTestProvider {
     val structureTemplateBasePath: String
+    val startIntoTestWorldOnStartup: Boolean
 
     fun init(scheduler: TACCTestScheduler?)
     fun registerTests(registry: TACCTestRegistry)

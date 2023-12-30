@@ -25,7 +25,7 @@ object StartTestClientPacket: ClientPlayNetworking.PlayChannelHandler {
         val templateInfo = TemplateInfo.readFromBuf(buf)
 
         ClientTestManager.reset()
-        ClientTestManager.startTest(testIdentifier, templateInfo)
+        ClientTestManager.startTestWhenAvailable(testIdentifier, templateInfo)
     }
 
 }

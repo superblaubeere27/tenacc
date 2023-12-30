@@ -14,6 +14,7 @@ val KEYBINDING_TO_INPUT_KEY = run {
         opt.jumpKey to InputKey.KEY_JUMP,
         opt.attackKey to InputKey.KEY_ATTACK,
         opt.useKey to InputKey.KEY_USE,
+        opt.sneakKey to InputKey.KEY_SNEAK,
     )
 }
 

@@ -1,20 +1,27 @@
 package net.ccbluex.tenacc.test
 
 import net.ccbluex.tenacc.api.runner.*
+import net.ccbluex.tenacc.features.templates.MirrorType
+import net.ccbluex.tenacc.features.templates.RotationType
+import net.ccbluex.tenacc.impl.TestIdentifier
 import net.ccbluex.tenacc.utils.TestErrorFormatter
 import net.ccbluex.tenacc.utils.chat
 import net.minecraft.server.network.ServerPlayerEntity
 
 internal class TestProvider: TACCTestProvider {
     override val structureTemplateBasePath: String
-        get() = "C:/Users/David/IdeaProjects/client-integrationtest/run/saves/New World/generated/minecraft/structures/"
+        get() = "/testresources/"
+    override val startIntoTestWorldOnStartup: Boolean
+        get() = true
 
     override fun init(scheduler: TACCTestScheduler?) {
-
+        scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testBasicFunctionality"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
+        scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testImpossible"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
     }
 
     override fun registerTests(registry: TACCTestRegistry) {
         registry.registerTestClass(TestTestTest::class)
+        registry.registerTestClass(GeneralTest::class)
     }
 
     override fun onTestFail(player: ServerPlayerEntity, schedulerInfo: ScheduledTest, error: Throwable) {

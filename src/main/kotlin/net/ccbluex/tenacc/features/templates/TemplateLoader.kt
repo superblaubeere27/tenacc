@@ -32,12 +32,12 @@ internal object TemplateLoader {
         val structureManager = server.structureTemplateManager
 
         // Find and open resource
-//        val fullResourcePath = "/testresources/$resourcePath"
-//
-//        val stream = TemplateLoader.javaClass.getResourceAsStream(fullResourcePath)
-//            ?: throw IllegalStateException("Cannot find resource $fullResourcePath")
+        val fullResourcePath = "/testresources/$resourcePath"
 
-         val stream = FileInputStream("${server.testManager.testProvider.structureTemplateBasePath}$resourcePath")
+        val stream = TemplateLoader.javaClass.getResourceAsStream(fullResourcePath)
+            ?: throw IllegalStateException("Cannot find resource $fullResourcePath")
+
+//         val stream = FileInputStream("${server.testManager.testProvider.structureTemplateBasePath}$resourcePath")
 
         // Read resource to NBT
         val nbtCompound = stream.use { NbtIo.readCompressed(it, NbtSizeTracker.ofUnlimitedBytes()) }

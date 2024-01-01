@@ -15,25 +15,23 @@ object ClientCommonAdapter: TACCSequenceAdapter {
         fn: suspend TACCTestSequence.() -> Unit
     ) {
         val seq = ClientTestSequence(ClientTestManager.sequenceManager, ClientNetworkManager) {
-            try {
-                if (variants.isEmpty()) {
-                    fn()
-                } else {
-                    for (variant in variants) {
-                        variant.apply(this)
+            if (variants.isEmpty()) {
+                fn()
+            } else {
+                for (variant in variants) {
+                    variant.apply(this)
 
-                        try {
-                            sync()
+                    try {
+                        sync()
 
-                            fn()
-                        } catch (e: Throwable) {
-                            throw TestVariantFailException(variant, e)
-                        }
+                        fn()
+                    } catch (e: Throwable) {
+                        throw TestVariantFailException(variant, e)
                     }
                 }
-            } finally {
-                ClientTestManager.reset()
             }
+
+            ClientTestManager.reset()
         }
 
         seq.run()

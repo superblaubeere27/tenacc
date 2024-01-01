@@ -8,7 +8,6 @@ import net.ccbluex.tenacc.impl.TestableFunction
 
 object TestErrorFormatter {
     fun formatError(e: Throwable, testFunction: TestableFunction): String {
-        var isClientSide = false
         var variant: String? = null
         var section: String? = null
         var functionLocation: String? = null
@@ -23,7 +22,9 @@ object TestErrorFormatter {
             when (currThrowable) {
                 is TestVariantFailException -> variant = currThrowable.variant.name
                 is TestSectionFailException -> section = currThrowable.sectionName
-                is ClientErrorException -> isClientSide = true
+                is ClientErrorException -> {
+                    return "client side: ${e.message}"
+                }
                 is TestFailException -> {
                     val causeStackTrace = currThrowable.stackTrace.find { it.className.equals(testFunction.className) && it.methodName.equals(testFunction.functionName) }
 
@@ -50,9 +51,6 @@ object TestErrorFormatter {
         val sb = StringBuilder()
 
         val additionalInfo = ArrayList<String>()
-
-        if (isClientSide)
-            additionalInfo.add("Client side")
 
         if (variant != null)
             additionalInfo.add("variant '$variant'")

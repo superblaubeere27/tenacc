@@ -18,7 +18,6 @@ abstract class TestManager: TACCTestRegistry {
             val clazz = Class.forName(System.getenv("TENACC_TEST_PROVIDER"))
 
             this.testProvider = clazz.getDeclaredConstructor().newInstance() as TACCTestProvider
-
         } catch (e: Throwable) {
             throw IllegalStateException("Failed to open TACTestProvider in TENACC_TEST_PROVIDER env variable", e)
         }

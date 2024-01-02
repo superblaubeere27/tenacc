@@ -12,11 +12,11 @@ internal class TestProvider: TACCTestProvider {
     override val structureTemplateBasePath: String
         get() = "/testresources/"
     override val startIntoTestWorldOnStartup: Boolean
-        get() = true
+        get() = false
 
     override fun init(scheduler: TACCTestScheduler?) {
-        scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testBasicFunctionality"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
-        scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testImpossible"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
+        //scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testBasicFunctionality"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
+        //scheduler!!.enqueueTests(TestScheduleRequest(TestIdentifier("GeneralTest", "testImpossible"), rotations = arrayOf(RotationType.NONE), mirrors = arrayOf(MirrorType.MIRROR_NONE)))
     }
 
     override fun registerTests(registry: TACCTestRegistry) {

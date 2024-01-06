@@ -32,7 +32,7 @@ internal object TemplateLoader {
         val structureManager = server.structureTemplateManager
 
         // Find and open resource
-        val fullResourcePath = "/testresources/$resourcePath"
+        val fullResourcePath = "${server.testManager.testProvider.structureTemplateBasePath}$resourcePath"
 
         val stream = TemplateLoader.javaClass.getResourceAsStream(fullResourcePath)
             ?: throw IllegalStateException("Cannot find resource $fullResourcePath")

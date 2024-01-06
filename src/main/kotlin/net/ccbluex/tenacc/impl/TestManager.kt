@@ -1,9 +1,11 @@
 package net.ccbluex.tenacc.impl
 
+import net.ccbluex.tenacc.Clientintegrationtest
 import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
 import net.ccbluex.tenacc.api.runner.TACCTestRegistry
 import net.ccbluex.tenacc.api.runner.TACCTestProvider
 import net.ccbluex.tenacc.impl.common.SequenceManager
+import net.ccbluex.tenacc.test.DefaultTestProvider
 import kotlin.reflect.KClass
 
 abstract class TestManager: TACCTestRegistry {
@@ -14,12 +16,14 @@ abstract class TestManager: TACCTestRegistry {
     val testProvider: TACCTestProvider
 
     init {
-        try {
+        this.testProvider = try {
             val clazz = Class.forName(System.getenv("TENACC_TEST_PROVIDER"))
 
-            this.testProvider = clazz.getDeclaredConstructor().newInstance() as TACCTestProvider
+             clazz.getDeclaredConstructor().newInstance() as TACCTestProvider
         } catch (e: Throwable) {
-            throw IllegalStateException("Failed to open TACTestProvider in TENACC_TEST_PROVIDER env variable", e)
+            Clientintegrationtest.logger.error("Failed to load TACTestProvider in TENACC_TEST_PROVIDER env variable: $e")
+
+            DefaultTestProvider
         }
 
         this.testProvider.registerTests(this)

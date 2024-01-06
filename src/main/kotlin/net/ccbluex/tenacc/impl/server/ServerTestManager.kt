@@ -95,7 +95,7 @@ class ServerTestManager(
             testableFunction.annotation.scenary
         )
 
-        val ctx = ServerRunningTestContext(testableFunction, player, templateInfo)
+        val ctx = ServerRunningTestContext(testableFunction, server, player.uuid, templateInfo)
 
         this.runningTest = ctx
 

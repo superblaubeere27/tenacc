@@ -10,6 +10,7 @@ import net.ccbluex.tenacc.features.templates.MirrorType
 import net.ccbluex.tenacc.features.templates.RotationType
 import net.ccbluex.tenacc.utils.Rotation
 import net.ccbluex.tenacc.utils.isStandingOnMarkerBlock
+import net.ccbluex.tenacc.utils.loadInventory
 import net.ccbluex.tenacc.utils.lookDirection
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks

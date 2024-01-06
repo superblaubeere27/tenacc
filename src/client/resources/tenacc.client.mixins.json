@@ -3,6 +3,7 @@
   "package": "net.ccbluex.tenacc.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinDeathScreen",
     "MixinInventoryScreen",
     "MixinKeyBinding",
     "MixinMinecraftClient",

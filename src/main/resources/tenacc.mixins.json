@@ -1,12 +1,13 @@
 {
-	"required": true,
-	"package": "net.ccbluex.tenacc.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-		"MixinMinecraftServer",
-		"MixinServerPlayNetworkHandler"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "net.ccbluex.tenacc.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinEntity",
+    "MixinMinecraftServer",
+    "MixinServerPlayNetworkHandler"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

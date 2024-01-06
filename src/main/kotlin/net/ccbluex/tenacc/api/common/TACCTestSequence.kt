@@ -56,11 +56,11 @@ interface TACCTestSequence {
      * // At this point we know that both sides have reached the sync point
      * ```
      */
-    suspend fun sync() {
-        client { permitFencePassage(CLIENT_SYNC_FENCE) }
-        server { permitFencePassage(SERVER_SYNC_FENCE) }
+    suspend fun sync(clientSyncId: Int = CLIENT_SYNC_FENCE, serverSyncId: Int = SERVER_SYNC_FENCE) {
+        client { permitFencePassage(clientSyncId) }
+        server { permitFencePassage(serverSyncId) }
 
-        waitForFencePassage(CLIENT_SYNC_FENCE, SERVER_SYNC_FENCE)
+        waitForFencePassage(clientSyncId, serverSyncId)
     }
 
     /**

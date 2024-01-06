@@ -28,13 +28,15 @@ abstract class CommonTestSequence(
     abstract val testManager: TestManager
 
     fun run() {
-        coroutine = GlobalScope.launch(Dispatchers.Unconfined, start= CoroutineStart.LAZY) {
+        coroutine = GlobalScope.launch(Dispatchers.Unconfined, start = CoroutineStart.LAZY) {
             val sequence = this@CommonTestSequence
 
             sequenceManager.registerSequence(sequence)
 
             try {
                 runCoroutine()
+            } catch (e: Exception) {
+                this.cancel("Failed to run coroutine", e)
             } finally {
                 continuation = null
                 sequenceManager.unregisterSequence(sequence)

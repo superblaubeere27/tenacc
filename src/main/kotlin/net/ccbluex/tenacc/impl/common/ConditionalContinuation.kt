@@ -3,6 +3,7 @@ package net.ccbluex.tenacc.impl.common
 import net.ccbluex.tenacc.api.common.TACCEvent
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 typealias EventClass = Class<out TACCEvent>
 
@@ -29,7 +30,13 @@ sealed class ConditionalContinuation<R>(
     protected fun resume(returnValue: R) {
         val continuation = this.continuation ?: throw IllegalStateException("onSuspend() not called yet")
 
-        continuation.resume(returnValue)
+        try {
+            continuation.resume(returnValue)
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+            continuation.resumeWithException(e)
+        }
     }
 
     /**

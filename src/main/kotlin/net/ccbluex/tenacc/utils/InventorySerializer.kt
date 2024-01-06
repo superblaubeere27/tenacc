@@ -27,4 +27,18 @@ object InventorySerializer {
         return playerInventory.writeNbt(NbtList())
     }
 
+    fun deserializePlayerInventory(playerInventory: PlayerInventory, nbt: NbtList) {
+        playerInventory.readNbt(nbt)
+    }
+
+    fun deserializeInventory(inventory: Inventory, nbt: NbtList) {
+        if (nbt.size != inventory.size()) {
+            throw IllegalArgumentException("Failed to read inventory from nbt: Inventory size (${inventory.size()}) does not equal to the nbt list's size (${nbt.size})")
+        }
+
+        nbt.forEachIndexed { index, nbtElement ->
+            inventory.setStack(index, ItemStack.fromNbt(nbtElement as NbtCompound))
+        }
+    }
+
 }

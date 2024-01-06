@@ -34,6 +34,8 @@ object FencePermitServerPacket: ServerPlayNetworking.PlayChannelHandler {
         val perm = buf.readVarInt()
 
         server.testManager.sequenceManager.onEvent(FencePermitEvent(listOf(perm)))
+
+        println("SERVER PERMIT RECV: $perm (${server.testManager.sequenceManager.fencePermissions})")
     }
 
 

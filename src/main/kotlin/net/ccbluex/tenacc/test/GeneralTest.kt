@@ -7,15 +7,16 @@ import net.ccbluex.tenacc.api.common.TACCBox
 import net.ccbluex.tenacc.api.common.TACCSequenceAdapter
 import net.ccbluex.tenacc.api.common.TACCTestSequence
 import net.ccbluex.tenacc.api.common.TACCTestVariant
+import net.ccbluex.tenacc.api.server.TACCServerTestAdapter
 import net.ccbluex.tenacc.features.templates.MirrorType
 import net.ccbluex.tenacc.features.templates.RotationType
-import net.ccbluex.tenacc.utils.Rotation
-import net.ccbluex.tenacc.utils.isStandingOnMarkerBlock
-import net.ccbluex.tenacc.utils.lookDirection
+import net.ccbluex.tenacc.utils.*
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
+import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.nbt.NbtList
 import net.minecraft.util.math.BlockPos
 import org.joml.Vector3f
 
@@ -45,11 +46,11 @@ class GeneralTest {
 
             loopByServer(startPositions) { startPositionBox ->
                 server<Unit> {
-                    resetScenery()
+                    resetStandardConditions()
 
-                    block?.let {
-                        player.serverWorld.setBlockState(getMarkerPos("run_left"), it.defaultState)
-                    }
+                    player.loadInventory("/testresources/testinventory.nbttxt")
+
+                    placeChestWithContents(getMarkerPos("turn_left"), "/testresources/sampleChest.nbttxt")
                 }
 
                 waitTicks(2)
@@ -94,6 +95,59 @@ class GeneralTest {
 
                 runLoop(startPositionBox)
             }
+
+            adapter.logServer("Test passed.")
+        }
+    }
+
+    @TACCTest(
+        name = "testDeath",
+        scenary = "general_test.nbt",
+        timeout = 500
+    )
+    fun testKill(adapter: TACCSequenceAdapter) {
+        var block: Block? = null
+
+        val variants = arrayOf(
+            TACCTestVariant.DEFAULT,
+            TACCTestVariant.of("killed") {},
+            TACCTestVariant.of("killed x2") {},
+        )
+
+        adapter.startSequence(variants) {
+            client { println("CA") }
+            server { println("SA") }
+
+            server {
+                val startPos = getMarkerPos("start")
+
+                resetStandardConditions()
+
+                player.teleport(
+                    player.serverWorld,
+                    startPos.x.toDouble() + 0.5,
+                    startPos.y.toDouble(),
+                    startPos.z.toDouble() + 0.5,
+                    0.0F,
+                    20F
+                )
+
+                player.serverWorld.setBlockState(BlockPos(startPos.x, startPos.y + 15, startPos.z), Blocks.ANVIL.defaultState)
+            }
+
+            serverSequence {  server ->
+                waitUntilOrFail(100, "player failed to die :c") {
+                    server.player.isDead
+                }
+            }
+            client { println("CB") }
+            server { println("SB") }
+
+            sync()
+
+            client { println("CC") }
+            server { println("SC") }
+
 
             adapter.logServer("Test passed.")
         }

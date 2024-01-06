@@ -2,6 +2,7 @@ package net.ccbluex.tenacc.impl.network.packets
 
 import net.ccbluex.tenacc.ClientTestManager
 import net.ccbluex.tenacc.impl.common.FencePermitEvent
+import net.ccbluex.tenacc.impl.server.testManager
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.PlayChannelHandler
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
@@ -29,6 +30,8 @@ object FencePermitClientPacket: PlayChannelHandler {
         val perm = buf.readVarInt()
 
         ClientTestManager.sequenceManager.onEvent(FencePermitEvent(listOf(perm)))
+
+        println("CLIENT PERMIT RECV: $perm (${ClientTestManager.sequenceManager.fencePermissions})")
     }
 
 

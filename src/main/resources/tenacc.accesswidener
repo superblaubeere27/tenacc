@@ -1,0 +1,8 @@
+accessWidener v2 named
+
+accessible class net/minecraft/client/MinecraftClient$LoadingContext
+
+mutable field net/minecraft/world/gen/chunk/FlatChunkGenerator config Lnet/minecraft/world/gen/chunk/FlatChunkGeneratorConfig;
+accessible field net/minecraft/world/gen/chunk/FlatChunkGenerator config Lnet/minecraft/world/gen/chunk/FlatChunkGeneratorConfig;
+accessible field net/minecraft/server/network/ServerPlayerEntity joinInvulnerabilityTicks I
+accessible method net/minecraft/client/gui/screen/world/CreateWorldScreen createLevel ()V

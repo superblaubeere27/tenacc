@@ -1,6 +1,5 @@
 package net.ccbluex.tenacc.impl.server
 
-import net.ccbluex.tenacc.api.common.TACCBox
 import net.ccbluex.tenacc.api.common.TACCEventListener
 import net.ccbluex.tenacc.api.server.TACCServerTestAdapter
 import net.ccbluex.tenacc.features.templates.TemplateInfo
@@ -23,6 +22,7 @@ class ServerTestAdapter(private val testContext: ServerRunningTestContext): TACC
 
     override val player: ServerPlayerEntity
         get() = testContext.player
+
     override val templateInfo: TemplateInfo
         get() = testContext.templateInfo
 

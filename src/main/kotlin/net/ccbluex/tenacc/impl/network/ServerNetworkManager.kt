@@ -18,6 +18,8 @@ class ServerNetworkManager(
     }
 
     override fun sendFencePermit(ids: Int) {
+        println("SERVER PERMIT SENT: $ids")
+
         val testContext = testManager.runningTest!!
 
         FencePermitServerPacket.send(testContext.player, ids)

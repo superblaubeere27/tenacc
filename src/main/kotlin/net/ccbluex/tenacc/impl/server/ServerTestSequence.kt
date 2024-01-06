@@ -17,6 +17,12 @@ const val SERVER_FINISHED_LOOP_ITERATION: Int = 1006
 const val SERVER_SYNC_FENCE: Int = 1007
 const val CLIENT_SYNC_FENCE: Int = 1008
 
+const val SERVER_SYNC_FENCE_BEFORE_TEST: Int = 2001
+const val CLIENT_SYNC_FENCE_BEFORE_TEST: Int = 2002
+
+const val SERVER_SYNC_FENCE_AFTER_TEST: Int = 2003
+const val CLIENT_SYNC_FENCE_AFTER_TEST: Int = 2004
+
 class ServerTestSequence(
     sequenceManager: SequenceManager,
     networkHandler: NetworkHandler, override val testManager: ServerTestManager, handler: SuspendableHandler,

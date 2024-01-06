@@ -23,15 +23,21 @@ class ServerCommonAdapter(private val serverTestManager: ServerTestManager): TAC
         ) {
             try {
                 if (variants.isEmpty()) {
+                    sync(CLIENT_SYNC_FENCE_BEFORE_TEST, SERVER_SYNC_FENCE_BEFORE_TEST)
+
                     fn()
+
+                    sync(CLIENT_SYNC_FENCE_AFTER_TEST, SERVER_SYNC_FENCE_AFTER_TEST)
                 } else {
                     for (variant in variants) {
                         variant.apply(this)
 
                         try {
-                            sync()
+                            sync(CLIENT_SYNC_FENCE_BEFORE_TEST, SERVER_SYNC_FENCE_BEFORE_TEST)
 
                             fn()
+
+                            sync(CLIENT_SYNC_FENCE_AFTER_TEST, SERVER_SYNC_FENCE_AFTER_TEST)
                         } catch (e: Throwable) {
                             throw TestVariantFailException(variant, e)
                         }

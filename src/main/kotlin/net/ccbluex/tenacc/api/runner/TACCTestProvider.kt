@@ -4,7 +4,13 @@ import net.minecraft.server.network.ServerPlayerEntity
 
 interface TACCTestProvider {
     val structureTemplateBasePath: String
-    val startIntoTestWorldOnStartup: Boolean
+
+    /**
+     * Enables headless features. Currently, that is
+     * - Automatic world joining or generation
+     * - Automatic respawning
+     */
+    val headlessMode: Boolean
 
     fun init(scheduler: TACCTestScheduler?)
     fun registerTests(registry: TACCTestRegistry)

@@ -2,11 +2,12 @@ package net.ccbluex.tenacc.impl.common
 
 import net.ccbluex.tenacc.api.common.TACCEvent
 import java.util.BitSet
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 
 class SequenceManager {
     private val registeredSequences = CopyOnWriteArraySet<ManagedSequence>()
-    private val fencePermissions = BitSet()
+    val fencePermissions = ConcurrentHashMap<Int, Int>()
 
     fun registerSequence(sequence: ManagedSequence) {
         this.registeredSequences.add(sequence)
@@ -18,8 +19,8 @@ class SequenceManager {
 
     fun onEvent(event: TACCEvent) {
         if (event is FencePermitEvent) {
-            synchronized(this.fencePermissions) {
-                event.permissions.forEach { this.fencePermissions.set(it) }
+            event.permissions.forEach {
+                this.fencePermissions.compute(it) { k, v -> (v ?: 0) + 1 }
             }
         }
 
@@ -32,15 +33,15 @@ class SequenceManager {
      * @return true if the fence was passed
      */
     fun tryPassFence(id: Int): Boolean {
-        synchronized(this.fencePermissions) {
-            if (!this.fencePermissions.get(id)) {
-                return false
-            }
+        var allowedPassages = 0
 
-            this.fencePermissions.clear(id)
+        this.fencePermissions.compute(id) { _, passages ->
+            allowedPassages = passages ?: 0
+
+            allowedPassages.coerceAtLeast(1) - 1
         }
 
-        return true
+        return allowedPassages > 0
     }
 
     fun reset() {

@@ -19,6 +19,9 @@ jobs:
 #        os: [ubuntu-22.04, windows-2022]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
